@@ -13,6 +13,7 @@ const defaultState = {
   ideas: [],
   patches: [],
   todayOverrides: {},
+  customBranches: [],
   chat: [],
   settings: { aiEndpoint: '', aiToken: '' }
 };
@@ -22,7 +23,7 @@ const modules = [
  ['today','Today'],['dashboard','Progress'],['master','Master Map'],['music','Music'],['sales','Sales'],
  ['acting','Acting'],['trading','Trading'],['fitness','Fitness'],['pharmacy','Pharmacy / Study'],
  ['business','Money / Business'],['miami','Miami'],['tetr','Tetr'],['content','Content'],
- ['ideas','Idea Parking'],['change','System Change'],['ai','AI Coach'],['settings','Settings']
+ ['ideas','Idea Parking'],['branches','Branches'],['change','System Change'],['ai','AI Coach'],['settings','Settings']
 ];
 
 const songWeeks = [
@@ -332,10 +333,104 @@ function actingHTML(){ return `<div class="grid2">
 }
 
 function tradingHTML(){ return `<div class="grid2">
- ${card('Current role','<p class="muted">Trading is a skill project. It is not the main money engine at Stage 1.</p>')}
- ${card('Daily 10 minutes',checks('trading-'+dateKey(),['Open one chart','Identify trend/direction','Mark entry','Mark invalidation/stop','Mark target','Take/review one paper decision','Journal reason','Close platform']))}
- ${card('Live-money gate',list(['Stable earned income','Miami obligations covered','30 documented paper trades','Written maximum-risk rule','Order types understood','No borrowed money']))}
- ${card('Saturday review',list(['Count trades','Did I follow my rule?','Did I move the stop?','Did I enter without a reason?','What one pattern am I testing?','Only one simple strategy active at a time']))}
+ ${card('Trading branch — exact starting platform',`
+   <div class="metric"><span>Broker</span><b>Interactive Brokers (IBKR)</b></div>
+   <div class="metric"><span>Phone app</span><b>IBKR GlobalTrader</b></div>
+   <div class="metric"><span>Account type</span><b>Individual → Cash account</b></div>
+   <div class="metric"><span>First products</span><b>Stocks / ETFs only</b></div>
+   <div class="metric"><span>Leverage</span><b>None during training</b></div>
+   <p class="small" style="margin-top:10px">Use real money only after the account is approved and funded. Cash account means you must have the cash for the trade; no borrowed margin and no short stock.</p>`)}
+ ${card('Account opening — do this in order',checks('trading-setup',[
+   'Download/open IBKR GlobalTrader or open Interactive Brokers account application.',
+   'Choose Individual account.',
+   'Choose Cash account — not Margin.',
+   'Enter legal name, residential address, date/country of birth.',
+   'Enter tax residency and tax identification number.',
+   'Enter employer information, income/assets, investment objectives and truthful trading experience.',
+   'Prepare proof of identity: valid passport, national ID, or driver’s licence.',
+   'Prepare separate proof of residential address: acceptable recent document showing your name/address.',
+   'Submit application and complete any identity verification requests.',
+   'After approval, sign in to Client Portal.',
+   'Create a deposit notification before sending money.',
+   'Choose the funding method available to you; for bank wire, copy the exact currency-specific instructions IBKR gives you.',
+   'Send funds from an account in your own name; record bank/intermediary fees.',
+   'Wait until cash is shown as available for trading before placing a live order.'
+ ]))}
+ ${card('Before each live trade — no skipping',checks('trading-pre-'+dateKey(),[
+   'Open GlobalTrader.',
+   'Open Trading Branch notes/journal.',
+   'Choose ONE instrument from the current watchlist; do not browse endlessly.',
+   'Write current price.',
+   'Write prior close.',
+   'Check whether the instrument is a stock or ETF.',
+   'Check today’s major company/market news before trading.',
+   'If single stock: check whether earnings or a major scheduled company event is imminent.',
+   'Define the reason for the trade in one sentence before pressing Buy/Sell.',
+   'Define entry price before submitting.',
+   'Define the price that proves the idea wrong before submitting.',
+   'Define planned exit/target before submitting.',
+   'Write the exact maximum dollar amount you are willing to lose on this trade.',
+   'Confirm that loss would not affect food, transport, bills, travel obligations, or debt payments.',
+   'Use no margin, no options, no shorting during the first live-learning phase.',
+   'If any required field is blank → NO TRADE.'
+ ]))}
+ ${card('Order execution — first live-learning phase',checks('trading-exec-'+dateKey(),[
+   'Tap the selected stock/ETF.',
+   'Tap Buy only after the pre-trade checklist is complete.',
+   'Use a small fractional-share cash amount rather than buying a whole expensive share when appropriate.',
+   'Prefer a limit order while learning so the maximum purchase price is explicit.',
+   'Review symbol, side, dollar/share quantity, order type and limit price.',
+   'Read estimated amount/fees shown by the broker.',
+   'Submit only if the order exactly matches the written plan.',
+   'Take a screenshot or record the fill price in the journal.',
+   'Do not add to the position simply because price moves against you.',
+   'Exit according to the rule written before entry, not emotion after entry.'
+ ]))}
+ ${card('What you are looking for',list([
+   'CONTEXT — What is the broad market doing?',
+   'CATALYST — Is there actual news/event information affecting the instrument?',
+   'DIRECTION — Is price generally trending up, down, or sideways on the timeframe you chose?',
+   'LEVEL — Where is the specific entry area?',
+   'INVALIDATION — What exact price/action proves the idea wrong?',
+   'LIQUIDITY — Can you enter/exit without an obviously wide spread?',
+   'RISK — What is the maximum dollar loss before you enter?',
+   'REWARD — Is the planned upside worth taking that defined risk?',
+   'BEHAVIOUR — Did you follow the plan or react emotionally?'
+ ]))}
+ ${card('First live-learning rules',list([
+   'Real money is allowed; uncontrolled risk is not.',
+   'Cash account only at the beginning.',
+   'Stocks/ETFs only at the beginning.',
+   'One open learning position at a time until your process is consistent.',
+   'No borrowed money.',
+   'No money needed for essentials, Miami, debt, tuition, rent or near-term obligations.',
+   'No revenge trade after a loss.',
+   'No trade is a valid decision.',
+   'The objective of the first trades is execution quality, not maximum profit.'
+ ]))}
+ ${card('Journal after every trade',checks('trading-review-'+dateKey(),[
+   'Instrument/ticker.',
+   'Date and exact entry time.',
+   'Entry price.',
+   'Exit price.',
+   'Position size / dollars used.',
+   'Planned maximum loss.',
+   'Actual profit/loss.',
+   'Reason for entry.',
+   'Reason for exit.',
+   'Did I follow the original rule? Yes/No.',
+   'One thing done correctly.',
+   'One mistake.',
+   'One rule for the next trade.'
+ ]))}
+ ${card('Trading scorecard',list([
+   'Process compliance % = trades where every pre-trade field was completed ÷ total trades.',
+   'Rule compliance % = trades executed exactly according to the written plan ÷ total trades.',
+   'Average planned loss vs actual loss.',
+   'Number of impulsive trades.',
+   'Number of no-trade decisions made correctly.',
+   'Net P/L is recorded, but process compliance is the first learning metric.'
+ ]))}
  </div>`;
 }
 
@@ -423,6 +518,82 @@ function changeHTML(){
  </div>`;
 }
 
+
+function linesFromText(v=''){ return String(v||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); }
+function branchById(id){ return (state.customBranches||[]).find(b=>String(b.id)===String(id)); }
+function branchNavItems(){
+ return (state.customBranches||[]).filter(b=>b.status!=='archived').map(b=>['branch:'+b.id,b.name]);
+}
+function branchExecutionStandardHTML(){
+ return card('Execution standard — applies to every branch',list([
+  'NAME — one clear branch/subcategory name.',
+  'PARENT — which larger module/pillar owns it.',
+  'PURPOSE — why this branch exists in one sentence.',
+  'OUTPUT — the measurable thing this branch must eventually produce.',
+  'TOOLS / ACCOUNTS — exact app, website, account, equipment or document used.',
+  'SETUP — account creation / installation / preparation steps in exact order.',
+  'ACTION LOOP — what you physically do when you open this branch.',
+  'MARKERS — what information you look at before deciding what to do.',
+  'DECISION RULES — “If X, do Y; if not, do Z.”',
+  'RISK / LIMITS — what you are not allowed to do.',
+  'METRICS — numbers proving whether you are improving.',
+  'COMPLETION TEST — what counts as done for today.',
+  'REVIEW — when the branch is evaluated or changed.',
+  'DEPENDENCIES — what other branches are actually affected if this one changes.',
+  'NOTES / SOURCES — evidence, lessons and reference links.'
+ ]));
+}
+function branchesHTML(){
+ const branches=state.customBranches||[];
+ return `<div class="grid7030">
+ ${card('Create a branch / subcategory',`<form id="branchForm" class="form">
+  <label>Branch name<input id="branchName" required placeholder="Example: Negotiation — Price Objections"></label>
+  <label>Parent module / pillar<input id="branchParent" required placeholder="Example: Sales"></label>
+  <label>Purpose<textarea id="branchPurpose" rows="2" required placeholder="Why does this branch exist?"></textarea></label>
+  <label>Measurable output / end result<textarea id="branchOutput" rows="2" required placeholder="What must this branch produce?"></textarea></label>
+  <label>Exact tools / accounts<textarea id="branchTools" rows="3" placeholder="One per line: app, website, account, equipment, document..."></textarea></label>
+  <label>Setup steps — one exact step per line<textarea id="branchSetup" rows="6" placeholder="Step 1...&#10;Step 2..."></textarea></label>
+  <label>Action loop — what I do when I open this branch<textarea id="branchActions" rows="6" placeholder="Open X...&#10;Check Y...&#10;Do Z..."></textarea></label>
+  <label>Markers — what I inspect / measure before acting<textarea id="branchMarkers" rows="5"></textarea></label>
+  <label>Decision rules — write If → Then rules<textarea id="branchRules" rows="5" placeholder="If ___, then ___."></textarea></label>
+  <label>Risk / limits<textarea id="branchLimits" rows="4"></textarea></label>
+  <label>Metrics<textarea id="branchMetrics" rows="4"></textarea></label>
+  <label>Completion test<textarea id="branchDone" rows="3" placeholder="Today is complete when..."></textarea></label>
+  <label>Review frequency<input id="branchReview" placeholder="Example: Sunday 6 PM / every 10 trades"></label>
+  <label>Dependencies<textarea id="branchDeps" rows="3" placeholder="Which modules genuinely change if this branch changes?"></textarea></label>
+  <label>Status<select id="branchStatus"><option value="active">Active</option><option value="waiting">Waiting</option></select></label>
+  <button class="btn primary">Create branch</button>
+ </form>`)}
+ <div class="stack">
+  ${branchExecutionStandardHTML()}
+  ${card('Current custom branches', branches.length?`<div class="stack">${branches.map(b=>`<div class="idea"><b>${esc(b.name)}</b><p>Parent: ${esc(b.parent)}<br>Status: ${esc(b.status)}<br>Output: ${esc(b.output)}</p><div class="actions" style="margin-top:8px"><button class="btn" data-open-branch="${b.id}">Open</button><button class="btn danger" data-delete-branch="${b.id}">Delete</button></div></div>`).join('')}</div>`:'<p class="muted">No custom branches yet.</p>')}
+ </div>
+ </div>`;
+}
+function customBranchHTML(id){
+ const b=branchById(id);
+ if(!b)return card('Branch not found','<p class="muted">This custom branch no longer exists.</p>');
+ const make=(title,items)=>card(title,items&&items.length?`<div class="stack">${items.map((x,i)=>check('branch-'+b.id+'-'+title.replace(/\W+/g,'-')+'-'+dateKey()+'-'+i,x)).join('')}</div>`:'<p class="muted">Not defined yet.</p>');
+ return `<div class="grid7030">
+  <div class="stack">
+   ${card(b.name,`<div class="badge">${esc(b.parent)}</div><p class="muted" style="margin-top:10px">${esc(b.purpose)}</p><div class="metric"><span>Status</span><b>${esc(b.status)}</b></div><div class="metric"><span>Output</span><b>${esc(b.output)}</b></div><div class="metric"><span>Review</span><b>${esc(b.review||'Not set')}</b></div>`)}
+   ${make('Tools / accounts',b.tools)}
+   ${make('Setup steps',b.setup)}
+   ${make('Action loop',b.actions)}
+   ${make('Markers',b.markers)}
+   ${make('Decision rules',b.rules)}
+   ${make('Risk / limits',b.limits)}
+   ${make('Metrics',b.metrics)}
+   ${card('Completion test',`<p class="muted">${esc(b.done||'Not defined yet.')}</p>`)}
+   ${make('Dependencies',b.dependencies)}
+  </div>
+  <div class="stack">
+   ${branchExecutionStandardHTML()}
+   ${card('Branch AI instruction',`<p class="muted">When asking AI about this branch, it receives this branch definition. AI should not answer with vague headings alone. It should identify the exact tool/account, exact next action, exact sequence, markers, decision rules, measurement and completion test.</p>`)}
+  </div>
+ </div>`;
+}
+
 function currentLocalTimeContext(){
  const now=new Date();
  return {
@@ -456,6 +627,9 @@ function currentContext(){
    current_module_note: state.notes[state.currentModule]||'',
    metrics: state.metrics,
    approved_patches: state.patches.slice(-20),
+   custom_branches: (state.customBranches||[]).map(b=>({id:b.id,name:b.name,parent:b.parent,status:b.status,purpose:b.purpose,output:b.output})),
+   current_custom_branch: state.currentModule.startsWith('branch:') ? branchById(state.currentModule.split(':')[1]) : null,
+   branch_execution_rule: 'Never give a vague branch task. Specify exact tool/account, exact sequence, markers, decision rules, risk limits, metrics and completion test.',
    parked_ideas: state.ideas.slice(-10)
  };
 }
@@ -507,13 +681,18 @@ function render(){
  document.getElementById('date').value=state.selectedDate;
  document.getElementById('stageName').textContent=st[0];
  document.getElementById('stagePurpose').textContent=st[1];
- document.getElementById('nav').innerHTML=modules.map(([id,name])=>`<button data-module="${id}" class="${state.currentModule===id?'active':''}">${esc(name)}</button>`).join('');
+ const navModules=[...modules,...branchNavItems()];
+ document.getElementById('nav').innerHTML=navModules.map(([id,name])=>`<button data-module="${id}" class="${state.currentModule===id?'active':''}">${esc(name)}</button>`).join('');
  const map={
   today:()=>todayHTML(d), dashboard:dashboardHTML, master:masterHTML, music:()=>musicHTML(d), sales:salesHTML,
   acting:actingHTML, trading:tradingHTML, fitness:()=>fitnessHTML(d), pharmacy:pharmacyHTML, business:businessHTML,
-  miami:miamiHTML, tetr:tetrHTML, content:contentHTML, ideas:ideasHTML, change:changeHTML, ai:aiHTML, settings:settingsHTML
+  miami:miamiHTML, tetr:tetrHTML, content:contentHTML, ideas:ideasHTML, branches:branchesHTML, change:changeHTML, ai:aiHTML, settings:settingsHTML
  };
- document.getElementById('content').innerHTML=map[state.currentModule]();
+ if(state.currentModule.startsWith('branch:')){
+   document.getElementById('content').innerHTML=customBranchHTML(state.currentModule.split(':')[1]);
+ }else{
+   document.getElementById('content').innerHTML=map[state.currentModule]();
+ }
  document.getElementById('moduleNote').value=state.notes[state.currentModule]||'';
  wire();
 }
@@ -530,6 +709,44 @@ function wire(){
  if(f) f.addEventListener('submit',e=>{e.preventDefault();state.ideas.push({name:document.getElementById('ideaName').value.trim(),why:document.getElementById('ideaWhy').value.trim(),replace:document.getElementById('ideaReplace').value.trim(),proof:document.getElementById('ideaProof').value.trim(),date:state.selectedDate});saveState();render();});
  const cf=document.getElementById('changeForm');
  if(cf) cf.addEventListener('submit',e=>{e.preventDefault();state.patches.push({trigger:document.getElementById('changeTrigger').value.trim(),module:document.getElementById('changeModule').value,fix:document.getElementById('changeFix').value.trim(),deps:document.getElementById('changeDeps').value.trim(),date:state.selectedDate});saveState();render();});
+
+ const bf=document.getElementById('branchForm');
+ if(bf) bf.addEventListener('submit',e=>{
+   e.preventDefault();
+   if(!state.customBranches)state.customBranches=[];
+   const b={
+     id:Date.now().toString(36),
+     name:document.getElementById('branchName').value.trim(),
+     parent:document.getElementById('branchParent').value.trim(),
+     purpose:document.getElementById('branchPurpose').value.trim(),
+     output:document.getElementById('branchOutput').value.trim(),
+     tools:linesFromText(document.getElementById('branchTools').value),
+     setup:linesFromText(document.getElementById('branchSetup').value),
+     actions:linesFromText(document.getElementById('branchActions').value),
+     markers:linesFromText(document.getElementById('branchMarkers').value),
+     rules:linesFromText(document.getElementById('branchRules').value),
+     limits:linesFromText(document.getElementById('branchLimits').value),
+     metrics:linesFromText(document.getElementById('branchMetrics').value),
+     done:document.getElementById('branchDone').value.trim(),
+     review:document.getElementById('branchReview').value.trim(),
+     dependencies:linesFromText(document.getElementById('branchDeps').value),
+     status:document.getElementById('branchStatus').value,
+     createdAt:new Date().toISOString()
+   };
+   state.customBranches.push(b);
+   state.currentModule='branch:'+b.id;
+   saveState(); render();
+ });
+ document.querySelectorAll('[data-open-branch]').forEach(btn=>btn.addEventListener('click',()=>{state.currentModule='branch:'+btn.dataset.openBranch;saveState();render();}));
+ document.querySelectorAll('[data-delete-branch]').forEach(btn=>btn.addEventListener('click',()=>{
+   const id=btn.dataset.deleteBranch;
+   if(confirm('Delete this custom branch?')){
+     state.customBranches=(state.customBranches||[]).filter(b=>String(b.id)!==String(id));
+     if(state.currentModule==='branch:'+id)state.currentModule='branches';
+     saveState();render();
+   }
+ }));
+
  const sf=document.getElementById('settingsForm');
  if(sf) sf.addEventListener('submit',e=>{e.preventDefault();state.settings.aiEndpoint=document.getElementById('aiEndpoint').value.trim();state.settings.aiToken=document.getElementById('aiToken').value.trim();saveState();render();});
  const exp=document.getElementById('exportBtn');
