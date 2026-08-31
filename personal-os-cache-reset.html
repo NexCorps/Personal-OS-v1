@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personal OS Cache Reset</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f1115;color:#f3f5f7;margin:0;padding:24px}
+.wrap{max-width:680px;margin:40px auto}
+.card{background:#1d2129;border:1px solid #2b313d;border-radius:18px;padding:22px}
+h1{font-size:26px;margin:0 0 12px}
+p{color:#aab2c0;line-height:1.5}
+button{width:100%;min-height:52px;border:0;border-radius:14px;background:#d6dded;color:#111318;font-size:17px;font-weight:700;margin-top:12px}
+#status{margin-top:16px;padding:12px;border-radius:12px;background:#171a20;color:#cbd2de;white-space:pre-wrap}
+.small{font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Refresh Personal OS</h1>
+    <p>This removes only the old Personal OS service-worker/cache files. It does <strong>not</strong> clear localStorage, so your normal Personal OS notes, checklists and metrics should remain intact.</p>
+    <p class="small">You already exported a backup, which remains the safety copy.</p>
+    <button id="reset">Reset app cache only</button>
+    <div id="status">Ready.</div>
+  </div>
+</div>
+<script>
+(()=>{
+  const btn=document.getElementById('reset');
+  const status=document.getElementById('status');
+  btn.addEventListener('click', async()=>{
+    btn.disabled=true;
+    status.textContent='Removing old service worker and cache...';
+    try{
+      let regs=[];
+      if('serviceWorker' in navigator){
+        regs=await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r=>r.unregister()));
+      }
+      let keys=[];
+      if('caches' in window){
+        keys=await caches.keys();
+        await Promise.all(keys.map(k=>caches.delete(k)));
+      }
+      status.textContent=`Done. Unregistered ${regs.length} service worker(s) and removed ${keys.length} cache(s).\nOpening the fresh app...`;
+      setTimeout(()=>{
+        location.replace('./?fresh='+Date.now());
+      },1200);
+    }catch(err){
+      status.textContent='Reset failed: '+(err && err.message ? err.message : String(err));
+      btn.disabled=false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
