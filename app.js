@@ -130,6 +130,7 @@ function aiActionProtocol(){
 - If you emit an action block, keep the visible explanation concise (normally under 180 words).
 - If and only if you recommend a DURABLE operating-system change, output exactly: <OS_PATCH>{\"module\":\"Module name\",\"trigger\":\"real-world cause\",\"change\":\"smallest durable change\",\"dependencies\":[\"true dependency\"],\"preserved\":[\"unaffected rule/module\"],\"effective_date\":\"${state.selectedDate}\"}</OS_PATCH>
 - If and only if TODAY'S schedule needs a temporary one-day adjustment, output exactly: <OS_TODAY>{\"reason\":\"why today changes\",\"schedule\":[[\"time/label\",\"action\"]],\"preserved\":[\"unchanged items\"]}</OS_TODAY>. The schedule array must be the COMPLETE revised schedule for ${state.selectedDate}; use today_schedule from context as baseline and preserve unaffected blocks.
+- CRITICAL TIME RULE: read current_local_time from context. Do not schedule any future action earlier than current_local_time. Treat earlier blocks as missed/completed history. Start the revised actionable schedule at or after the current clock time.
 - You may output both blocks only when both are genuinely needed.
 - JSON must be valid, use double quotes, and have no code fence.
 - Do not emit either block for ordinary advice that does not change the system or today's schedule.]`;
@@ -139,7 +140,7 @@ async function repairMachineActions(endpoint,token,userText,context,needPatch,ne
  if(needPatch)requested.push('OS_PATCH');
  if(needToday)requested.push('OS_TODAY');
  if(!requested.length)return{patch:null,today:null};
- const instruction=`ACTION BLOCK REPAIR. A previous response intended ${requested.join(' and ')} but its machine block was incomplete. Return ONLY the complete requested machine block(s), with valid JSON and closing tags. No prose. For OS_TODAY, return the COMPLETE revised schedule using today_schedule in context as the baseline. For OS_PATCH, return only a genuine durable change. Original user request: ${userText}`;
+ const instruction=`ACTION BLOCK REPAIR. A previous response intended ${requested.join(' and ')} but its machine block was incomplete. Return ONLY the complete requested machine block(s), with valid JSON and closing tags. No prose. For OS_TODAY, return the COMPLETE revised schedule using today_schedule in context as the baseline, but do not include actionable blocks earlier than context.current_local_time. For OS_PATCH, return only a genuine durable change. Original user request: ${userText}`;
  try{
    const res=await fetch(endpoint,{
      method:'POST',
@@ -422,11 +423,27 @@ function changeHTML(){
  </div>`;
 }
 
+function currentLocalTimeContext(){
+ const now=new Date();
+ return {
+   local_iso: now.toLocaleString('sv-SE').replace(' ','T'),
+   local_time: now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+   local_date: now.toLocaleDateString('en-CA'),
+   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'local'
+ };
+}
+
 function currentContext(){
  const d=parseDate(state.selectedDate), st=stageFor(d);
+ const nowCtx=currentLocalTimeContext();
  const done=Object.entries(state.checks).filter(([k,v])=>v&&k.startsWith('daily-'+dateKey()+'-')).length;
  return {
    operating_date: state.selectedDate,
+   current_local_time: nowCtx.local_time,
+   current_local_date: nowCtx.local_date,
+   current_local_iso: nowCtx.local_iso,
+   timezone: nowCtx.timezone,
+   scheduling_rule: 'For a today-only adjustment, never schedule any new block earlier than current_local_time. Past blocks are missed/completed history, not future tasks.',
    stage: st[0],
    stage_purpose: st[1],
    today_song: songFor(d),
