@@ -543,53 +543,80 @@ function branchExecutionStandardHTML(){
   'NOTES / SOURCES — evidence, lessons and reference links.'
  ]));
 }
+function branchStatsHTML(branches){
+ const active=branches.filter(b=>b.status==='active').length;
+ const waiting=branches.filter(b=>b.status==='waiting').length;
+ return `<div class="branch-overview cardless">
+   <div class="metricTile"><span>Total branches</span><b>${branches.length}</b></div>
+   <div class="metricTile"><span>Active</span><b>${active}</b></div>
+   <div class="metricTile"><span>Waiting</span><b>${waiting}</b></div>
+   <div class="metricTile"><span>Rule</span><b>One clear execution path per branch</b></div>
+ </div>`;
+}
 function branchesHTML(){
  const branches=state.customBranches||[];
- return `<div class="grid7030">
- ${card('Create a branch / subcategory',`<form id="branchForm" class="form">
-  <label>Branch name<input id="branchName" required placeholder="Example: Negotiation — Price Objections"></label>
-  <label>Parent module / pillar<input id="branchParent" required placeholder="Example: Sales"></label>
-  <label>Purpose<textarea id="branchPurpose" rows="2" required placeholder="Why does this branch exist?"></textarea></label>
-  <label>Measurable output / end result<textarea id="branchOutput" rows="2" required placeholder="What must this branch produce?"></textarea></label>
-  <label>Exact tools / accounts<textarea id="branchTools" rows="3" placeholder="One per line: app, website, account, equipment, document..."></textarea></label>
-  <label>Setup steps — one exact step per line<textarea id="branchSetup" rows="6" placeholder="Step 1...&#10;Step 2..."></textarea></label>
-  <label>Action loop — what I do when I open this branch<textarea id="branchActions" rows="6" placeholder="Open X...&#10;Check Y...&#10;Do Z..."></textarea></label>
-  <label>Markers — what I inspect / measure before acting<textarea id="branchMarkers" rows="5"></textarea></label>
-  <label>Decision rules — write If → Then rules<textarea id="branchRules" rows="5" placeholder="If ___, then ___."></textarea></label>
-  <label>Risk / limits<textarea id="branchLimits" rows="4"></textarea></label>
-  <label>Metrics<textarea id="branchMetrics" rows="4"></textarea></label>
-  <label>Completion test<textarea id="branchDone" rows="3" placeholder="Today is complete when..."></textarea></label>
-  <label>Review frequency<input id="branchReview" placeholder="Example: Sunday 6 PM / every 10 trades"></label>
-  <label>Dependencies<textarea id="branchDeps" rows="3" placeholder="Which modules genuinely change if this branch changes?"></textarea></label>
-  <label>Status<select id="branchStatus"><option value="active">Active</option><option value="waiting">Waiting</option></select></label>
-  <button class="btn primary">Create branch</button>
- </form>`)}
- <div class="stack">
-  ${branchExecutionStandardHTML()}
-  ${card('Current custom branches', branches.length?`<div class="stack">${branches.map(b=>`<div class="idea"><b>${esc(b.name)}</b><p>Parent: ${esc(b.parent)}<br>Status: ${esc(b.status)}<br>Output: ${esc(b.output)}</p><div class="actions" style="margin-top:8px"><button class="btn" data-open-branch="${b.id}">Open</button><button class="btn danger" data-delete-branch="${b.id}">Delete</button></div></div>`).join('')}</div>`:'<p class="muted">No custom branches yet.</p>')}
- </div>
+ return `<div class="stack stack-lg">
+  ${card('Branch system',`<p class="muted">Use this area to create precise subcategories under your main pillars. Every branch should tell you exactly what tool to open, what order to work in, what to inspect, and what counts as finished.</p>${branchStatsHTML(branches)}`)}
+  <div class="grid7030">
+   ${card('Create a branch / subcategory',`<form id="branchForm" class="form">
+    <div class="formSection">
+      <div class="formSectionTitle">1) Identity</div>
+      <label>Branch name<input id="branchName" required placeholder="Example: Negotiation — Price Objections"></label>
+      <label>Parent module / pillar<input id="branchParent" required placeholder="Example: Sales"></label>
+      <label>Purpose<textarea id="branchPurpose" rows="2" required placeholder="Why does this branch exist?"></textarea></label>
+      <label>Measurable output / end result<textarea id="branchOutput" rows="2" required placeholder="What must this branch produce?"></textarea></label>
+      <label>Status<select id="branchStatus"><option value="active">Active</option><option value="waiting">Waiting</option></select></label>
+    </div>
+    <div class="formSection">
+      <div class="formSectionTitle">2) Tools and setup</div>
+      <label>Exact tools / accounts<textarea id="branchTools" rows="3" placeholder="One per line: app, website, account, equipment, document..."></textarea></label>
+      <label>Setup steps — one exact step per line<textarea id="branchSetup" rows="6" placeholder="Step 1...&#10;Step 2..."></textarea></label>
+    </div>
+    <div class="formSection">
+      <div class="formSectionTitle">3) Execution</div>
+      <label>Action loop — what I do when I open this branch<textarea id="branchActions" rows="6" placeholder="Open X...&#10;Check Y...&#10;Do Z..."></textarea></label>
+      <label>Markers — what I inspect / measure before acting<textarea id="branchMarkers" rows="5" placeholder="Price trend, account balance, open orders, watchlist, calendar..."></textarea></label>
+      <label>Decision rules — write If → Then rules<textarea id="branchRules" rows="5" placeholder="If ___, then ___."></textarea></label>
+    </div>
+    <div class="formSection">
+      <div class="formSectionTitle">4) Control and review</div>
+      <label>Risk / limits<textarea id="branchLimits" rows="4"></textarea></label>
+      <label>Metrics<textarea id="branchMetrics" rows="4"></textarea></label>
+      <label>Completion test<textarea id="branchDone" rows="3" placeholder="Today is complete when..."></textarea></label>
+      <label>Review frequency<input id="branchReview" placeholder="Example: Sunday 6 PM / every 10 trades"></label>
+      <label>Dependencies<textarea id="branchDeps" rows="3" placeholder="Which modules genuinely change if this branch changes?"></textarea></label>
+    </div>
+    <button class="btn primary">Create branch</button>
+   </form>`)}
+   <div class="stack">
+    ${branchExecutionStandardHTML()}
+    ${card('Current custom branches', branches.length?`<div class="branch-list">${branches.map(b=>`<div class="branchItem"><div class="branchItemTop"><div><b>${esc(b.name)}</b><div class="small">${esc(b.parent)}</div></div><div class="badge ${b.status==='waiting'?'badge-waiting':'badge-active'}">${esc(b.status)}</div></div><p class="muted">${esc(b.output)}</p><div class="actions" style="margin-top:10px"><button class="btn" data-open-branch="${b.id}">Open</button><button class="btn danger" data-delete-branch="${b.id}">Delete</button></div></div>`).join('')}</div>`:'<p class="muted">No custom branches yet.</p>')}
+   </div>
+  </div>
  </div>`;
 }
 function customBranchHTML(id){
  const b=branchById(id);
  if(!b)return card('Branch not found','<p class="muted">This custom branch no longer exists.</p>');
  const make=(title,items)=>card(title,items&&items.length?`<div class="stack">${items.map((x,i)=>check('branch-'+b.id+'-'+title.replace(/\W+/g,'-')+'-'+dateKey()+'-'+i,x)).join('')}</div>`:'<p class="muted">Not defined yet.</p>');
- return `<div class="grid7030">
-  <div class="stack">
-   ${card(b.name,`<div class="badge">${esc(b.parent)}</div><p class="muted" style="margin-top:10px">${esc(b.purpose)}</p><div class="metric"><span>Status</span><b>${esc(b.status)}</b></div><div class="metric"><span>Output</span><b>${esc(b.output)}</b></div><div class="metric"><span>Review</span><b>${esc(b.review||'Not set')}</b></div>`)}
-   ${make('Tools / accounts',b.tools)}
-   ${make('Setup steps',b.setup)}
-   ${make('Action loop',b.actions)}
-   ${make('Markers',b.markers)}
-   ${make('Decision rules',b.rules)}
-   ${make('Risk / limits',b.limits)}
-   ${make('Metrics',b.metrics)}
-   ${card('Completion test',`<p class="muted">${esc(b.done||'Not defined yet.')}</p>`)}
-   ${make('Dependencies',b.dependencies)}
-  </div>
-  <div class="stack">
-   ${branchExecutionStandardHTML()}
-   ${card('Branch AI instruction',`<p class="muted">When asking AI about this branch, it receives this branch definition. AI should not answer with vague headings alone. It should identify the exact tool/account, exact next action, exact sequence, markers, decision rules, measurement and completion test.</p>`)}
+ return `<div class="stack stack-lg">
+  ${card(b.name,`<div class="branchHero"><div><div class="badge">${esc(b.parent)}</div><p class="muted" style="margin-top:10px">${esc(b.purpose)}</p></div><div class="branchHeroStats"><div class="metric"><span>Status</span><b>${esc(b.status)}</b></div><div class="metric"><span>Output</span><b>${esc(b.output)}</b></div><div class="metric"><span>Review</span><b>${esc(b.review||'Not set')}</b></div></div></div><div class="actions" style="margin-top:12px"><button type="button" class="btn" data-jump-module="branches">Back to Branches</button></div>`)}
+  <div class="grid7030">
+   <div class="stack">
+    ${make('Tools / accounts',b.tools)}
+    ${make('Setup steps',b.setup)}
+    ${make('Action loop',b.actions)}
+    ${make('Markers',b.markers)}
+    ${make('Decision rules',b.rules)}
+    ${make('Risk / limits',b.limits)}
+    ${make('Metrics',b.metrics)}
+    ${card('Completion test',`<p class="muted">${esc(b.done||'Not defined yet.')}</p>`)}
+    ${make('Dependencies',b.dependencies)}
+   </div>
+   <div class="stack">
+    ${branchExecutionStandardHTML()}
+    ${card('Branch AI instruction',`<p class="muted">When asking AI about this branch, it receives this branch definition. AI should not answer with vague headings alone. It should identify the exact tool/account, exact next action, exact sequence, markers, decision rules, measurement and completion test.</p>`)}
+   </div>
   </div>
  </div>`;
 }
@@ -683,6 +710,9 @@ function render(){
  document.getElementById('stagePurpose').textContent=st[1];
  const navModules=[...modules,...branchNavItems()];
  document.getElementById('nav').innerHTML=navModules.map(([id,name])=>`<button data-module="${id}" class="${state.currentModule===id?'active':''}">${esc(name)}</button>`).join('');
+ const currentModuleName=(navModules.find(([id])=>id===state.currentModule)||[])[1]||'Custom branch';
+ const doneToday=Object.entries(state.checks).filter(([k,v])=>v&&k.startsWith('daily-'+dateKey()+'-')).length;
+ document.getElementById('content').dataset.currentModule=currentModuleName;
  const map={
   today:()=>todayHTML(d), dashboard:dashboardHTML, master:masterHTML, music:()=>musicHTML(d), sales:salesHTML,
   acting:actingHTML, trading:tradingHTML, fitness:()=>fitnessHTML(d), pharmacy:pharmacyHTML, business:businessHTML,
@@ -693,6 +723,8 @@ function render(){
  }else{
    document.getElementById('content').innerHTML=map[state.currentModule]();
  }
+ const hud=`<div class="moduleHud"><div class="moduleHudPill"><span>Current module</span><b>${esc(currentModuleName)}</b></div><div class="moduleHudPill"><span>Date</span><b>${esc(state.selectedDate)}</b></div><div class="moduleHudPill"><span>Daily completion</span><b>${doneToday}/7</b></div></div>`;
+ document.getElementById('content').innerHTML=hud+document.getElementById('content').innerHTML;
  document.getElementById('moduleNote').value=state.notes[state.currentModule]||'';
  wire();
 }
@@ -702,6 +734,7 @@ function wire(){
    state.notes[state.currentModule]=document.getElementById('moduleNote').value;
    state.currentModule=b.dataset.module; saveState(); render();
  }));
+ document.querySelectorAll('[data-jump-module]').forEach(b=>b.addEventListener('click',()=>{state.currentModule=b.dataset.jumpModule;saveState();render();}));
  document.querySelectorAll('[data-check]').forEach(c=>c.addEventListener('change',()=>{state.checks[c.dataset.check]=c.checked;saveState();}));
  const mf=document.getElementById('metricForm');
  if(mf) mf.addEventListener('submit',e=>{e.preventDefault();state.metrics.totalSales=+document.getElementById('mSales').value||0;state.metrics.revenue=+document.getElementById('mRevenue').value||0;state.metrics.applications=+document.getElementById('mApps').value||0;state.metrics.songsReady=+document.getElementById('mSongs').value||0;saveState();render();});

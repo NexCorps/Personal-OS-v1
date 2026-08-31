@@ -1,5 +1,5 @@
-const CACHE='personal-os-v6-3-branches';
-const ASSETS=['./','./index.html','./styles.css?v=6.3','./app.js?v=6.3','./manifest.json?v=6.3','./icon-192.png','./icon-512.png'];
+const CACHE='personal-os-v6-4-ui';
+const ASSETS=['./','./index.html','./styles.css?v=6.4','./app.js?v=6.4','./manifest.json?v=6.4','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));});
 self.addEventListener('activate',e=>e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim();})()));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);const critical=e.request.mode==='navigate'||/\/(app\.js|styles\.css|index\.html|manifest\.json)$/.test(u.pathname);if(critical){e.respondWith((async()=>{try{const f=await fetch(e.request,{cache:'no-store'});const c=await caches.open(CACHE);c.put(e.request,f.clone());return f;}catch(_){return(await caches.match(e.request))||(await caches.match('./index.html'));}})());return;}e.respondWith(caches.match(e.request).then(x=>x||fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return r;})));});
