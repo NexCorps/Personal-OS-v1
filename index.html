@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111318">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My OS">
+  <title>Personal Operating System</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="app" class="app">
+    <section class="top">
+      <div class="card">
+        <div class="kicker">Operating rule</div>
+        <h1>Big vision. Small battlefield.</h1>
+        <p class="muted">My mind can generate unlimited ideas. My schedule cannot. New opportunities replace blocks; they do not stack.</p>
+        <div class="engine">
+          <div><b>CONNECT</b><span>See links</span></div>
+          <div><b>UNDERSTAND</b><span>People + systems</span></div>
+          <div><b>BUILD</b><span>Turn links into assets</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <label for="date">Operating date</label>
+        <input id="date" class="datebox" type="date" min="2026-08-30" max="2027-12-31">
+        <div id="stageName" style="margin-top:12px;font-weight:800"></div>
+        <p id="stagePurpose" class="muted" style="font-size:13px;margin-bottom:0"></p>
+      </div>
+    </section>
+
+    <nav id="nav" class="nav" aria-label="Modules"></nav>
+    <section id="content" class="content" aria-live="polite"></section>
+
+    <section class="footerTools">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+          <div><h2 style="margin-bottom:2px">Focus timer</h2><div class="small">Use the fixed block. Stop when it ends.</div></div>
+          <div id="timerDisplay" class="timer">10:00</div>
+        </div>
+        <div class="pills" style="margin-top:12px">
+          <button data-min="10">10m</button><button data-min="20">20m</button><button data-min="30">30m</button>
+          <button data-min="45">45m</button><button data-min="65">65m</button>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button id="timerStart" class="btn primary">Start / Pause</button>
+          <button id="timerReset" class="btn">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <label for="moduleNote">Current module notes</label>
+        <textarea id="moduleNote" class="note" placeholder="Problem, lesson, result or adjustment..."></textarea>
+        <div class="small">Notes, checklists, metrics, ideas, patches and chat history are stored locally on this device/browser.</div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
