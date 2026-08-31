@@ -13,7 +13,7 @@ const defaultState = {
   ideas: [],
   patches: [],
   chat: [],
-  settings: { aiEndpoint: '' }
+  settings: { aiEndpoint: '', aiToken: '' }
 };
 let state = loadState();
 
@@ -353,12 +353,14 @@ function currentContext(){
 
 function aiHTML(){
  const ep=state.settings.aiEndpoint;
+ const token=state.settings.aiToken||'';
+ const aiReady=Boolean(ep&&token);
  return `<div class="grid7030">
-   ${card('AI Coach',`<div class="${ep?'good':'notice'}">${ep?'AI endpoint configured. Messages can include your live operating-state context.':'AI is not connected yet. The app remains fully usable offline. Connect a secure backend in Settings to use OpenAI inside this panel.'}</div>
+   ${card('AI Coach',`<div class="${ep?'good':'notice'}">${aiReady?'AI endpoint and private app token configured. Messages can include your live operating-state context.':'AI is not connected yet. The app remains fully usable offline. Connect the secure backend URL and private app token in Settings.'}</div>
    <div id="chatBox" class="chatbox" style="margin-top:12px">${state.chat.length?state.chat.map(m=>`<div class="chatmsg ${m.role==='user'?'user':'ai'}"><div class="who">${m.role==='user'?'You':'AI Coach'}</div><div>${esc(m.text)}</div></div>`).join(''):'<p class="muted">Ask about the active module, a problem you encountered, or a system change. Your current date, module and productivity state can be sent with the message.</p>'}</div>
    <form id="chatForm" class="form" style="margin-top:12px">
      <label>Message<textarea id="chatInput" rows="3" required placeholder="Example: I missed the morning sales block because traffic took 55 minutes. Patch the day without redesigning everything."></textarea></label>
-     <div class="actions"><button class="btn primary" ${ep?'':'disabled'}>${ep?'Send with current context':'Connect AI in Settings'}</button><button type="button" id="clearChat" class="btn">Clear chat history</button></div>
+     <div class="actions"><button class="btn primary" ${aiReady?'':'disabled'}>${aiReady?'Send with current context':'Connect AI in Settings'}</button><button type="button" id="clearChat" class="btn">Clear chat history</button></div>
    </form>`)}
    ${card('What the AI receives',`<pre style="white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0">${esc(JSON.stringify(currentContext(),null,2))}</pre>`)}
  </div>`;
@@ -367,7 +369,8 @@ function aiHTML(){
 function settingsHTML(){
  return `<div class="grid2">
  ${card('AI connection',`<form id="settingsForm" class="form">
-  <label>Secure AI backend URL<input id="aiEndpoint" type="url" value="${esc(state.settings.aiEndpoint||'')}" placeholder="https://your-private-server.example/api/chat"></label>
+  <label>Secure AI backend URL<input id="aiEndpoint" type="url" value="${esc(state.settings.aiEndpoint||'')}" placeholder="https://your-project.vercel.app/api/chat"></label>
+  <label>Private app token<input id="aiToken" type="password" value="${esc(state.settings.aiToken||'')}" placeholder="Paste the private token you create in Vercel"></label>
   <button class="btn primary">Save settings</button>
  </form>
  <div class="notice" style="margin-top:12px">Do not put an OpenAI API key into this app. The downloadable project includes an optional backend that keeps the key server-side.</div>`)}
@@ -407,7 +410,7 @@ function wire(){
  const cf=document.getElementById('changeForm');
  if(cf) cf.addEventListener('submit',e=>{e.preventDefault();state.patches.push({trigger:document.getElementById('changeTrigger').value.trim(),module:document.getElementById('changeModule').value,fix:document.getElementById('changeFix').value.trim(),deps:document.getElementById('changeDeps').value.trim(),date:state.selectedDate});saveState();render();});
  const sf=document.getElementById('settingsForm');
- if(sf) sf.addEventListener('submit',e=>{e.preventDefault();state.settings.aiEndpoint=document.getElementById('aiEndpoint').value.trim();saveState();render();});
+ if(sf) sf.addEventListener('submit',e=>{e.preventDefault();state.settings.aiEndpoint=document.getElementById('aiEndpoint').value.trim();state.settings.aiToken=document.getElementById('aiToken').value.trim();saveState();render();});
  const exp=document.getElementById('exportBtn');
  if(exp) exp.addEventListener('click',()=>{
    const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
@@ -422,12 +425,12 @@ function wire(){
  const chatform=document.getElementById('chatForm');
  if(chatform) chatform.addEventListener('submit',async e=>{
    e.preventDefault();
-   const input=document.getElementById('chatInput'), text=input.value.trim(), endpoint=state.settings.aiEndpoint;
-   if(!text||!endpoint)return;
+   const input=document.getElementById('chatInput'), text=input.value.trim(), endpoint=state.settings.aiEndpoint, token=state.settings.aiToken||'';
+   if(!text||!endpoint||!token)return;
    state.chat.push({role:'user',text});saveState();render();
    state.chat.push({role:'assistant',text:'Thinking…'});saveState();render();
    try{
-     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,context:currentContext(),history:state.chat.slice(-12,-1)})});
+     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-App-Token':token},body:JSON.stringify({message:text,context:currentContext(),history:state.chat.slice(-12,-1)})});
      if(!res.ok) throw new Error('Server returned '+res.status);
      const data=await res.json();
      state.chat[state.chat.length-1]={role:'assistant',text:data.reply||'No reply returned.'};
