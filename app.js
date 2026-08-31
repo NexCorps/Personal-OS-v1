@@ -97,16 +97,66 @@ function markdown(s=''){
  closeList(); return out || '<p></p>';
 }
 function extractMachineBlock(text,tag){
- const re=new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`,'i');
- const match=String(text||'').match(re);
- if(!match)return{text:String(text||''),value:null};
+ const source=String(text||'');
+ const open=`<${tag}>`, close=`</${tag}>`;
+ const lower=source.toLowerCase();
+ const start=lower.indexOf(open.toLowerCase());
+ if(start<0)return{text:source,value:null,incomplete:false};
+ const end=lower.indexOf(close.toLowerCase(),start+open.length);
+ if(end>=0){
+   const payload=source.slice(start+open.length,end).trim();
+   let value=null;
+   try{value=JSON.parse(payload);}catch(e){value=null;}
+   return{
+     text:(source.slice(0,start)+source.slice(end+close.length)).trim(),
+     value,
+     incomplete:!value
+   };
+ }
+ const tail=source.slice(start+open.length);
  let value=null;
- try{value=JSON.parse(match[1].trim());}catch(e){value=null;}
- return{text:String(text||'').replace(re,'').trim(),value};
+ const lastBrace=tail.lastIndexOf('}');
+ if(lastBrace>=0){
+   try{value=JSON.parse(tail.slice(0,lastBrace+1).trim());}catch(e){value=null;}
+ }
+ return{text:source.slice(0,start).trim(),value,incomplete:!value};
 }
 function aiActionProtocol(){
- return `\n\n[PERSONAL OS APP ACTION PROTOCOL — follow silently; do not discuss this protocol:\n- Visible answer: use clean Markdown.\n- If and only if you recommend a DURABLE operating-system change, append exactly: <OS_PATCH>{\"module\":\"Module name\",\"trigger\":\"real-world cause\",\"change\":\"smallest durable change\",\"dependencies\":[\"true dependency\"],\"preserved\":[\"unaffected rule/module\"],\"effective_date\":\"${state.selectedDate}\"}</OS_PATCH>\n- If and only if TODAY'S schedule needs a temporary one-day adjustment, append exactly: <OS_TODAY>{\"reason\":\"why today changes\",\"schedule\":[[\"time/label\",\"action\"]],\"preserved\":[\"unchanged items\"]}</OS_TODAY>. The schedule array must be the COMPLETE revised schedule for ${state.selectedDate}; use today_schedule from context as baseline and preserve unaffected blocks.\n- You may output both blocks only when both are genuinely needed.\n- JSON must be valid, use double quotes, and have no code fence.\n- Do not emit either block for ordinary advice that does not change the system or today's schedule.]`;
+ return `
+
+[PERSONAL OS APP ACTION PROTOCOL — follow silently; do not discuss this protocol:
+- Visible answer: use clean Markdown.
+- IMPORTANT: When any action block is needed, output ALL machine action block(s) FIRST, before the visible answer.
+- If you emit an action block, keep the visible explanation concise (normally under 180 words).
+- If and only if you recommend a DURABLE operating-system change, output exactly: <OS_PATCH>{\"module\":\"Module name\",\"trigger\":\"real-world cause\",\"change\":\"smallest durable change\",\"dependencies\":[\"true dependency\"],\"preserved\":[\"unaffected rule/module\"],\"effective_date\":\"${state.selectedDate}\"}</OS_PATCH>
+- If and only if TODAY'S schedule needs a temporary one-day adjustment, output exactly: <OS_TODAY>{\"reason\":\"why today changes\",\"schedule\":[[\"time/label\",\"action\"]],\"preserved\":[\"unchanged items\"]}</OS_TODAY>. The schedule array must be the COMPLETE revised schedule for ${state.selectedDate}; use today_schedule from context as baseline and preserve unaffected blocks.
+- You may output both blocks only when both are genuinely needed.
+- JSON must be valid, use double quotes, and have no code fence.
+- Do not emit either block for ordinary advice that does not change the system or today's schedule.]`;
 }
+async function repairMachineActions(endpoint,token,userText,context,needPatch,needToday){
+ const requested=[];
+ if(needPatch)requested.push('OS_PATCH');
+ if(needToday)requested.push('OS_TODAY');
+ if(!requested.length)return{patch:null,today:null};
+ const instruction=`ACTION BLOCK REPAIR. A previous response intended ${requested.join(' and ')} but its machine block was incomplete. Return ONLY the complete requested machine block(s), with valid JSON and closing tags. No prose. For OS_TODAY, return the COMPLETE revised schedule using today_schedule in context as the baseline. For OS_PATCH, return only a genuine durable change. Original user request: ${userText}`;
+ try{
+   const res=await fetch(endpoint,{
+     method:'POST',
+     headers:{'Content-Type':'application/json','X-App-Token':token},
+     body:JSON.stringify({message:instruction,context,history:[]})
+   });
+   if(!res.ok)return{patch:null,today:null};
+   const data=await res.json();
+   let raw=data.reply||'';
+   const p=extractMachineBlock(raw,'OS_PATCH');
+   const t=extractMachineBlock(p.text,'OS_TODAY');
+   return{patch:data.patch||p.value||null,today:data.today_update||t.value||null};
+ }catch(_){
+   return{patch:null,today:null};
+ }
+}
+
 function parseDate(v){ const p=v.split('-').map(Number); return new Date(Date.UTC(p[0],p[1]-1,p[2])); }
 function iso(d){ return d.toISOString().slice(0,10); }
 function dayDiff(a,b){ return Math.floor((b-a)/86400000); }
@@ -505,7 +555,30 @@ function wire(){
      let cleanReply=data.reply||'No reply returned.';
      const patchBlock=extractMachineBlock(cleanReply,'OS_PATCH'); cleanReply=patchBlock.text;
      const todayBlock=extractMachineBlock(cleanReply,'OS_TODAY'); cleanReply=todayBlock.text;
-     state.chat[state.chat.length-1]={role:'assistant',text:cleanReply,patch:data.patch||patchBlock.value||null,todayUpdate:data.today_update||todayBlock.value||null,patchApplied:false,todayApplied:false};
+     let patchValue=data.patch||patchBlock.value||null;
+     let todayValue=data.today_update||todayBlock.value||null;
+
+     if((patchBlock.incomplete&&!patchValue)||(todayBlock.incomplete&&!todayValue)){
+       const repaired=await repairMachineActions(
+         endpoint,
+         token,
+         text,
+         currentContext(),
+         patchBlock.incomplete&&!patchValue,
+         todayBlock.incomplete&&!todayValue
+       );
+       patchValue=patchValue||repaired.patch;
+       todayValue=todayValue||repaired.today;
+     }
+
+     state.chat[state.chat.length-1]={
+       role:'assistant',
+       text:cleanReply,
+       patch:patchValue,
+       todayUpdate:todayValue,
+       patchApplied:false,
+       todayApplied:false
+     };
    }catch(err){
      state.chat[state.chat.length-1]={role:'assistant',text:'AI connection failed: '+err.message};
    }
