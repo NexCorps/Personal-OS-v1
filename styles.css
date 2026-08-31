@@ -82,3 +82,18 @@ li{margin:6px 0;color:var(--muted);font-size:14px}
   .engine{grid-template-columns:1fr 1fr 1fr}
   .row{grid-template-columns:86px 1fr}
 }
+
+
+/* v6 — AI rendering and proposals */
+.md p{margin:0 0 10px;line-height:1.5}
+.md p:last-child{margin-bottom:0}
+.md ul,.md ol{margin:8px 0 10px;padding-left:22px}
+.md li{margin:5px 0;color:inherit;line-height:1.45}
+.md h2,.md h3,.md h4{margin:12px 0 7px;color:var(--text)}
+.md strong{color:var(--text);font-weight:800}
+.md em{font-style:italic}
+.md code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#101318;border:1px solid var(--line);border-radius:6px;padding:1px 5px;font-size:.92em}
+.proposal{margin-top:12px;border:1px solid var(--line);border-radius:13px;padding:12px;background:#171b22}
+.proposal-title{font-weight:800;margin:5px 0 6px}
+.proposal .btn{margin-top:10px;width:100%}
+.proposal-status{margin-top:10px}

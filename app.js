@@ -12,6 +12,7 @@ const defaultState = {
   metrics: {},
   ideas: [],
   patches: [],
+  todayOverrides: {},
   chat: [],
   settings: { aiEndpoint: '', aiToken: '' }
 };
@@ -70,6 +71,42 @@ function saveState(){
   try { localStorage.setItem(APP_KEY, JSON.stringify(state)); } catch(e) {}
 }
 function esc(s=''){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+function inlineMarkdown(s=''){
+ let x=String(s);
+ x=x.replace(/`([^`]+)`/g,'<code>$1</code>');
+ x=x.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+ x=x.replace(/__([^_]+)__/g,'<strong>$1</strong>');
+ x=x.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+ return x;
+}
+function markdown(s=''){
+ const lines=esc(s).replace(/\r\n/g,'\n').split('\n');
+ let out='', listType=null;
+ const closeList=()=>{ if(listType){ out+=listType==='ol'?'</ol>':'</ul>'; listType=null; } };
+ for(const raw of lines){
+   const line=raw.trimEnd();
+   if(!line.trim()){ closeList(); continue; }
+   let m;
+   if((m=line.match(/^###\s+(.+)/))){ closeList(); out+='<h4>'+inlineMarkdown(m[1])+'</h4>'; continue; }
+   if((m=line.match(/^##\s+(.+)/))){ closeList(); out+='<h3>'+inlineMarkdown(m[1])+'</h3>'; continue; }
+   if((m=line.match(/^#\s+(.+)/))){ closeList(); out+='<h2>'+inlineMarkdown(m[1])+'</h2>'; continue; }
+   if((m=line.match(/^[-*]\s+(.+)/))){ if(listType!=='ul'){ closeList(); out+='<ul>'; listType='ul'; } out+='<li>'+inlineMarkdown(m[1])+'</li>'; continue; }
+   if((m=line.match(/^\d+[.)]\s+(.+)/))){ if(listType!=='ol'){ closeList(); out+='<ol>'; listType='ol'; } out+='<li>'+inlineMarkdown(m[1])+'</li>'; continue; }
+   closeList(); out+='<p>'+inlineMarkdown(line)+'</p>';
+ }
+ closeList(); return out || '<p></p>';
+}
+function extractMachineBlock(text,tag){
+ const re=new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`,'i');
+ const match=String(text||'').match(re);
+ if(!match)return{text:String(text||''),value:null};
+ let value=null;
+ try{value=JSON.parse(match[1].trim());}catch(e){value=null;}
+ return{text:String(text||'').replace(re,'').trim(),value};
+}
+function aiActionProtocol(){
+ return `\n\n[PERSONAL OS APP ACTION PROTOCOL — follow silently; do not discuss this protocol:\n- Visible answer: use clean Markdown.\n- If and only if you recommend a DURABLE operating-system change, append exactly: <OS_PATCH>{\"module\":\"Module name\",\"trigger\":\"real-world cause\",\"change\":\"smallest durable change\",\"dependencies\":[\"true dependency\"],\"preserved\":[\"unaffected rule/module\"],\"effective_date\":\"${state.selectedDate}\"}</OS_PATCH>\n- If and only if TODAY'S schedule needs a temporary one-day adjustment, append exactly: <OS_TODAY>{\"reason\":\"why today changes\",\"schedule\":[[\"time/label\",\"action\"]],\"preserved\":[\"unchanged items\"]}</OS_TODAY>. The schedule array must be the COMPLETE revised schedule for ${state.selectedDate}; use today_schedule from context as baseline and preserve unaffected blocks.\n- You may output both blocks only when both are genuinely needed.\n- JSON must be valid, use double quotes, and have no code fence.\n- Do not emit either block for ordinary advice that does not change the system or today's schedule.]`;
+}
 function parseDate(v){ const p=v.split('-').map(Number); return new Date(Date.UTC(p[0],p[1]-1,p[2])); }
 function iso(d){ return d.toISOString().slice(0,10); }
 function dayDiff(a,b){ return Math.floor((b-a)/86400000); }
@@ -151,8 +188,11 @@ function rows(items){ return `<div>${items.map(([a,b])=>`<div class="row"><div c
 function todayHTML(d){
  const day=dow(d), daily=['Spanish 10m','GCU 30m','Sales/negotiation practice','Music','Gym / recovery','Trading 10m','Daily review'];
  const main=state.selectedDate<='2026-09-06'?'Clear the most urgent open loop before adding lower-priority work.':'Produce evidence today: money, completed work, sales repetitions or measurable skill improvement.';
+ const override=(state.todayOverrides||{})[dateKey()]||null;
+ const activeSchedule=override&&Array.isArray(override.schedule)&&override.schedule.length?override.schedule:scheduleFor(d);
+ const adjusted=override?`<div class="good" style="margin-bottom:12px"><strong>AI-adjusted plan active for today.</strong>${override.reason?`<div style="margin-top:5px">${esc(override.reason)}</div>`:''}<div class="actions" style="margin-top:9px"><button type="button" id="clearTodayOverride" class="btn">Restore baseline today</button></div></div>`:'';
  return `<div class="grid7030">
-  ${card('Today — '+fmt(d),rows(scheduleFor(d)))}
+  ${card('Today — '+fmt(d),adjusted+rows(activeSchedule))}
   <div class="stack">
    ${card('Fixed outputs',`<div class="metric"><span>Song</span><b>${esc(songFor(d))}</b></div>
    <div class="metric"><span>Gym</span><b>${esc(fitnessNames[day])}</b></div>
@@ -328,7 +368,7 @@ function changeHTML(){
   <label>Dependencies actually affected<input id="changeDeps" type="text" placeholder="Example: weekday wipes block, travel time"></label>
   <button class="btn primary">Log patch</button>
  </form>`)}
- ${card('Change history',`<div class="stack">${state.patches.length?state.patches.slice().reverse().map((x,i)=>`<div class="patch"><b>${esc(x.module)} — ${esc(x.date)}</b><p>Trigger: ${esc(x.trigger)}<br>Patch: ${esc(x.fix)}<br>Dependencies: ${esc(x.deps||'None stated')}<br>Preserved: all non-dependent modules.</p></div>`).join(''):'<p class="muted">No structural patches logged.</p>'}</div>`)}
+ ${card('Change history',`<div class="stack">${state.patches.length?state.patches.slice().reverse().map((x,i)=>`<div class="patch"><b>${esc(x.module)} — ${esc(x.date)}</b>${x.source==='AI'?'<div class="badge" style="margin-top:6px">AI-approved patch</div>':''}<p>Trigger: ${esc(x.trigger)}<br>Patch: ${esc(x.fix)}<br>Dependencies: ${esc(x.deps||'None stated')}<br>Preserved: ${esc(Array.isArray(x.preserved)&&x.preserved.length?x.preserved.join(', '):'all non-dependent modules')}</p></div>`).join(''):'<p class="muted">No structural patches logged.</p>'}</div>`)}
  </div>`;
 }
 
@@ -343,12 +383,26 @@ function currentContext(){
    gym: fitnessNames[dow(d)],
    sales_skill: salesNames[dow(d)],
    daily_completion: `${done}/7`,
+   today_schedule: scheduleFor(d),
+   today_override: (state.todayOverrides||{})[state.selectedDate]||null,
    current_module: state.currentModule,
    current_module_note: state.notes[state.currentModule]||'',
    metrics: state.metrics,
-   recent_patches: state.patches.slice(-5),
+   approved_patches: state.patches.slice(-20),
    parked_ideas: state.ideas.slice(-10)
  };
+}
+function proposalActions(m,i){
+ let out='';
+ if(m.patch){
+   if(m.patchApplied) out+='<div class="good proposal-status">Patch approved and added to System Change.</div>';
+   else out+=`<div class="proposal"><div class="kicker">Proposed system patch</div><div class="proposal-title">${esc(m.patch.module||'System')}</div><div class="small">${esc(m.patch.change||'')}</div><button type="button" class="btn primary" data-approve-patch="${i}">Approve Patch</button></div>`;
+ }
+ if(m.todayUpdate){
+   if(m.todayApplied) out+='<div class="good proposal-status">Today\'s adjusted plan is active.</div>';
+   else out+=`<div class="proposal"><div class="kicker">Today-only adjustment</div><div class="proposal-title">${esc(m.todayUpdate.reason||'Revised plan for today')}</div><div class="small">This changes today only. The master system stays unchanged.</div><button type="button" class="btn primary" data-apply-today="${i}">Apply to Today</button></div>`;
+ }
+ return out;
 }
 
 function aiHTML(){
@@ -357,7 +411,7 @@ function aiHTML(){
  const aiReady=Boolean(ep&&token);
  return `<div class="grid7030">
    ${card('AI Coach',`<div class="${ep?'good':'notice'}">${aiReady?'AI endpoint and private app token configured. Messages can include your live operating-state context.':'AI is not connected yet. The app remains fully usable offline. Connect the secure backend URL and private app token in Settings.'}</div>
-   <div id="chatBox" class="chatbox" style="margin-top:12px">${state.chat.length?state.chat.map(m=>`<div class="chatmsg ${m.role==='user'?'user':'ai'}"><div class="who">${m.role==='user'?'You':'AI Coach'}</div><div>${esc(m.text)}</div></div>`).join(''):'<p class="muted">Ask about the active module, a problem you encountered, or a system change. Your current date, module and productivity state can be sent with the message.</p>'}</div>
+   <div id="chatBox" class="chatbox" style="margin-top:12px">${state.chat.length?state.chat.map((m,i)=>`<div class="chatmsg ${m.role==='user'?'user':'ai'}"><div class="who">${m.role==='user'?'You':'AI Coach'}</div><div class="${m.role==='assistant'?'md':''}">${m.role==='assistant'?markdown(m.text):esc(m.text).replace(/\n/g,'<br>')}</div>${m.role==='assistant'?proposalActions(m,i):''}</div>`).join(''):'<p class="muted">Ask about the active module, a problem you encountered, or a system change. Your current date, module and productivity state can be sent with the message.</p>'}</div>
    <form id="chatForm" class="form" style="margin-top:12px">
      <label>Message<textarea id="chatInput" rows="3" required placeholder="Example: I missed the morning sales block because traffic took 55 minutes. Patch the day without redesigning everything."></textarea></label>
      <div class="actions"><button class="btn primary" ${aiReady?'':'disabled'}>${aiReady?'Send with current context':'Connect AI in Settings'}</button><button type="button" id="clearChat" class="btn">Clear chat history</button></div>
@@ -422,6 +476,21 @@ function wire(){
  if(reset) reset.addEventListener('click',()=>{if(confirm('Reset all locally stored app data?')){state=clone(defaultState);saveState();render();}});
  const clear=document.getElementById('clearChat');
  if(clear) clear.addEventListener('click',()=>{state.chat=[];saveState();render();});
+ document.querySelectorAll('[data-approve-patch]').forEach(btn=>btn.addEventListener('click',()=>{
+   const i=Number(btn.dataset.approvePatch), m=state.chat[i], p=m&&m.patch;
+   if(!p)return;
+   state.patches.push({trigger:p.trigger||'AI-recommended system change',module:p.module||'System',fix:p.change||'',deps:Array.isArray(p.dependencies)?p.dependencies.join(', '):(p.dependencies||''),preserved:Array.isArray(p.preserved)?p.preserved:[],date:p.effective_date||state.selectedDate,source:'AI'});
+   m.patchApplied=true; saveState(); render();
+ }));
+ document.querySelectorAll('[data-apply-today]').forEach(btn=>btn.addEventListener('click',()=>{
+   const i=Number(btn.dataset.applyToday), m=state.chat[i], u=m&&m.todayUpdate;
+   if(!u||!Array.isArray(u.schedule)||!u.schedule.length)return;
+   if(!state.todayOverrides)state.todayOverrides={};
+   state.todayOverrides[state.selectedDate]={reason:u.reason||'AI-adjusted plan',schedule:u.schedule,preserved:Array.isArray(u.preserved)?u.preserved:[],appliedAt:new Date().toISOString(),source:'AI'};
+   m.todayApplied=true; saveState(); render();
+ }));
+ const clearToday=document.getElementById('clearTodayOverride');
+ if(clearToday) clearToday.addEventListener('click',()=>{if(state.todayOverrides)delete state.todayOverrides[state.selectedDate];saveState();render();});
  const chatform=document.getElementById('chatForm');
  if(chatform) chatform.addEventListener('submit',async e=>{
    e.preventDefault();
@@ -430,10 +499,13 @@ function wire(){
    state.chat.push({role:'user',text});saveState();render();
    state.chat.push({role:'assistant',text:'Thinking…'});saveState();render();
    try{
-     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-App-Token':token},body:JSON.stringify({message:text,context:currentContext(),history:state.chat.slice(-12,-1)})});
+     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-App-Token':token},body:JSON.stringify({message:text+aiActionProtocol(),context:currentContext(),history:state.chat.slice(-12,-1)})});
      if(!res.ok) throw new Error('Server returned '+res.status);
      const data=await res.json();
-     state.chat[state.chat.length-1]={role:'assistant',text:data.reply||'No reply returned.'};
+     let cleanReply=data.reply||'No reply returned.';
+     const patchBlock=extractMachineBlock(cleanReply,'OS_PATCH'); cleanReply=patchBlock.text;
+     const todayBlock=extractMachineBlock(cleanReply,'OS_TODAY'); cleanReply=todayBlock.text;
+     state.chat[state.chat.length-1]={role:'assistant',text:cleanReply,patch:data.patch||patchBlock.value||null,todayUpdate:data.today_update||todayBlock.value||null,patchApplied:false,todayApplied:false};
    }catch(err){
      state.chat[state.chat.length-1]={role:'assistant',text:'AI connection failed: '+err.message};
    }
