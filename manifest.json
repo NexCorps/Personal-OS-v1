@@ -1,7 +1,7 @@
 {
   "name": "Personal OS",
   "short_name": "Personal OS",
-  "start_url": "./index.html?v=6.4",
+  "start_url": "./index.html?v=6.5",
   "display": "standalone",
   "background_color": "#0b1020",
   "theme_color": "#111318",

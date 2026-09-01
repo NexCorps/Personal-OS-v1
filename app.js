@@ -14,6 +14,7 @@ const defaultState = {
   patches: [],
   todayOverrides: {},
   customBranches: [],
+  profile: { country:'', region:'', city:'', address:'', currency:'', transportMode:'', travelRadiusKm:'', coordinates:null },
   chat: [],
   settings: { aiEndpoint: '', aiToken: '' }
 };
@@ -60,6 +61,20 @@ const travelMusic = {
 
 const fitnessNames = ['Recovery','Chest','Back','Legs','Shoulders','Arms','Optional weak point'];
 const salesNames = ['Weakest-skill review','Cold approach','Discovery questions','Price objections','Negotiation','Closing','Full scenario'];
+
+
+const executionBlueprints = {
+ music:{parent:'Music',purpose:'Build a professional live-performance skill and repertoire that can earn income in high-end hospitality and private settings.',output:'Performance-ready songs and a reliable live set.',hub:['Instrument: 88-key digital piano when available; guitar for interim structure practice','Reference audio: Spotify / YouTube / purchased recording','Metronome or timer','Personal OS Music branch for notes and completion tracking'],access:['Practice location with instrument, headphones/speaker and minimal interruption','Performance opportunities are location-dependent: target hotels, restaurants, lounges, private events and corporate venues within the selected travel radius'],setup:['Choose the fixed song assigned by the OS','Open one reference recording','Set instrument and seat/stand','Set 65-minute timer','Write key and song sections before decorative playing'],actions:['Listen without playing','Map structure','Find key','Map chords','Convert to numbers','Choose simplest arrangement','Practice sections','Full uninterrupted run','Fix one breakdown','Record recall notes'],markers:['Can I identify the key?','Can I name every section?','Can I play the chord movement without stopping?','Are intro and ending clean?','Can I maintain conversation-friendly volume?'],rules:['If harmony is unstable → simplify before adding fills','If a mistake occurs during full run → continue to the end','If one song is not retained → do not add complexity to it'],limits:['Do not choose songs by mood during fixed-repertoire phase','Do not spend the whole session improvising','Do not chase complexity before clean time, harmony and endings'],metrics:['Songs learned','Songs retained after 7 days','Full-run completion without stopping','Minutes of uninterrupted performance','Number of songs performance-ready'],done:'The fixed practice block is completed and the song has one recorded improvement or identified correction.',review:'Weekly set review; monthly repertoire count.',next:'Open the Music module and complete the current song process from the first unfinished step.'},
+ sales:{parent:'Sales',purpose:'Build repeatable ability to approach, diagnose need, communicate value, handle resistance and close.',output:'Real sales repetitions, conversion improvement and revenue.',hub:['Google Maps / business directories for target sourcing','Phone and messaging apps','Personal OS Sales tracker / notes','Product or offer sheet used in the real conversation'],access:['Work one geographic cluster at a time based on profile city and travel radius','Prioritize locations that can be reached within the available travel window'],setup:['Choose one sales skill for the day','Prepare target list before leaving','Write opening line','Write 3 discovery questions','Know price/offer and minimum acceptable outcome','Pack samples/materials if physical selling'],actions:['Enter or call','Reach decision maker','Open conversation','Ask current process','Listen','Identify problem','Present only relevant value','Handle objection','Ask for sale/trial/meeting','Record result immediately'],markers:['Decision maker reached?','Need identified?','Objection type?','Offer presented?','Close attempted?','Outcome and next follow-up date?'],rules:['If no need is identified → keep asking before pitching','If objection is vague → clarify before responding','If the decision maker is unavailable → secure a return time/contact','Every qualified conversation ends with a clear ask'],limits:['No wandering without a prepared cluster','No endless explaining after the buyer understands','No changing price impulsively without a rule'],metrics:['Approaches','Decision-maker conversations','Qualified needs','Offers made','Closes','Conversion rate','Revenue','Follow-ups completed'],done:'The planned number of real approaches or the defined revenue/output target is completed and every result is recorded.',review:'Daily field review; weekly conversion review.',next:'Open the Sales module, identify today’s skill, then prepare the first target before leaving.'},
+ acting:{parent:'Acting',purpose:'Build acting skill through real script work, recorded practice and performance opportunities.',output:'Submitted scripts/auditions, recorded scenes and measurable performance improvement.',hub:['Current script document/PDF','iPhone camera or voice recorder','Timer','Personal OS Acting notes','Training/audition source when available'],access:['Training and audition opportunities depend on country/city; use profile location to filter reachable options','Keep remote/self-tape opportunities separate from in-person travel requirements'],setup:['Open the current script','Read once without acting','Identify character, place, relationship, prior event and objective','Mark beats and changes','Set camera/recording position'],actions:['Read for meaning','Define objective','Choose playable actions','Rehearse one beat at a time','Record full take','Watch once without stopping','Write one correction','Record second take'],markers:['Objective clear?','Words memorized enough to listen?','Voice audible?','Eye-line consistent?','Actions change when the other person changes?','One specific improvement between takes?'],rules:['If meaning is unclear → return to text before performance choices','If performance feels forced → simplify action and listen','Finish the current script before starting a new curriculum'],limits:['No endless retakes without one defined correction','No adding new acting projects before the active submission is handled'],metrics:['Scripts completed','Self-tapes recorded','Submissions sent','Callbacks/auditions','Specific corrections resolved'],done:'One complete work block produces a finished take, script analysis section, or submission-ready improvement.',review:'After each recording/submission; weekly acting progress review.',next:'Open the current script and complete the first unfinished analysis or recording step.'},
+ trading:{parent:'Trading',purpose:'Learn market execution with real money while controlling risk and documenting every decision.',output:'Rule-based live trades with measured process compliance and P/L.',hub:['Broker: Interactive Brokers (IBKR)','Phone app: IBKR GlobalTrader','Account type: Individual → Cash account','Trading journal in Personal OS'],access:['Broker/account availability must match profile country and legal eligibility','Funding method depends on the bank/currency available to the user; use broker-generated instructions only'],setup:['Create/verify account','Fund from an account in your own name','Confirm cash available','Choose one instrument','Complete pre-trade checklist','Define entry, invalidation, target and maximum loss'],actions:['Open GlobalTrader','Open journal','Select one watchlist instrument','Check price/news/context','Write thesis','Define risk','Enter only if rules pass','Record fill','Manage according to written plan','Journal result'],markers:['Market context','Catalyst/news','Direction','Entry level','Invalidation','Liquidity/spread','Maximum dollar risk','Reward relative to risk','Behavior compliance'],rules:['Cash account only during early learning','No trade if a required field is blank','No adding to losing position without a prewritten rule','No revenge trading'],limits:['No margin','No options during initial live-learning phase','No shorting','No money needed for essentials or near-term obligations'],metrics:['Process compliance %','Rule compliance %','Actual vs planned loss','Net P/L','Impulsive trades','Correct no-trade decisions'],done:'A live trade or valid no-trade decision is fully documented with the checklist and journal complete.',review:'After every trade; deeper review every 10 trades.',next:'Open Trading, complete the account/setup gate if unfinished; otherwise complete one pre-trade checklist.'},
+ fitness:{parent:'Fitness',purpose:'Build muscle, strength and discipline with short repeatable sessions.',output:'Progressive training performance and gradual bodyweight/muscle gain.',hub:['Gym available within profile travel radius','Workout log in Personal OS','Timer','Bodyweight scale if available','Food/protein tracking method'],access:['Choose the gym/location that can actually be reached inside the scheduled block','Travel time is part of the workout block and should be reflected in Today adjustments'],setup:['Check today’s muscle group','Pack clothes/water','Arrive with a 45-minute cap','Choose starting weights from last session or a conservative first-session load','Start timer'],actions:['Warm up target joints/movement','Complete listed compound movement','Complete listed secondary movement','Complete listed accessory movement','Record load and reps','Leave when the planned work is done'],markers:['Load used','Reps completed','Reps left in reserve','Technique quality','Session duration','Weekly bodyweight trend'],rules:['If all sets reach top of rep range cleanly → increase load slightly next time','If technique breaks → reduce load','If recovery is poor → reduce volume rather than adding random exercises'],limits:['No 2–3 hour gym sessions','No changing the workout because another exercise looks interesting','No relying on supplements instead of food/recovery'],metrics:['Loads/reps','Session completion','Bodyweight weekly trend','Workout consistency','Protein/food consistency'],done:'The planned exercises are completed within the time cap and load/reps are recorded.',review:'Weekly training review; monthly bodyweight/strength trend.',next:'Open Fitness, identify today’s muscle group, then complete the first listed exercise.'},
+ pharmacy:{parent:'Pharmacy / Study',purpose:'Convert pharmacy education and work exposure into usable clinical knowledge, professional output and healthcare-business insight.',output:'Completed academic obligations, stronger patient-care reasoning and documented workflow/business observations.',hub:['Personal OS Pharmacy module','Course/rotation files and notes','Current clinical guidelines/reference sources when needed','Calculator / drug-information resources','Workplace systems while on shift'],access:['Professional scope and licensing depend on country; separate what can be done as a graduate/intern from what requires pharmacist registration','Patient-identifying information must not be stored in the personal OS'],setup:['Define the exact assignment/patient/topic','Gather the required source documents','Write the clinical question','Identify deadline/output format','Open the relevant guideline/reference'],actions:['Identify problem','Collect relevant facts','Assess medication/clinical issue','Compare to guideline/standard','Calculate dose/labs when required','Write recommendation/care plan','Check interactions/monitoring','Finalize output'],markers:['Indication','Dose','Route','Frequency','Duration','Renal/hepatic factors','Interactions','Contraindications','Monitoring','Guideline position','Patient counseling'],rules:['Use current authoritative references for changing clinical guidance','Separate observed facts from assumptions','Do not store patient identifiers'],limits:['Do not substitute AI alone for clinical verification','Do not exceed legal scope of practice'],metrics:['Assignments completed','Topics reviewed','Guideline-supported decisions','Observed workflow problems logged','Deadlines met'],done:'The defined pharmacy/study output is completed, checked against the required source, and saved/submitted.',review:'At end of study block/shift; weekly academic closeout.',next:'Open Pharmacy / Study and complete the highest-priority unfinished academic or clinical output.'},
+ business:{parent:'Money / Business',purpose:'Create income and build businesses through specific offers, customers, operations and measurable cash flow.',output:'Revenue, validated offers, paid work and reusable business assets.',hub:['Personal OS Money / Business tracker','Bank/payment account','Lead/customer tracker','Offer/pricing document','Email/phone/LinkedIn or relevant sales channel'],access:['Target customers and payment methods must be compatible with profile country and target market','Foreign-currency work should specify employer/client country, payment method and legal/contract constraints'],setup:['Choose one active money engine','Define today’s measurable output','Open lead/application list','Prepare offer/CV/message','Confirm payment/price terms'],actions:['Source lead/opportunity','Qualify','Contact','Follow up','Close/apply','Deliver required work','Invoice/collect where relevant','Record result'],markers:['Qualified opportunity?','Decision maker?','Value/problem fit?','Payment amount/currency?','Next action/date?','Actual cash received?'],rules:['New business replaces an active block; it does not stack indefinitely','Evidence before expansion','Paid work hours become protected'],limits:['No capital-heavy expansion before validation','No endless research instead of contacting the market'],metrics:['Applications','Qualified leads','Calls/messages','Meetings','Closes','Revenue','Foreign-currency income','Cash collected'],done:'Today’s defined money-output block is complete and every opportunity has a next action.',review:'Daily money check; weekly pipeline/revenue review.',next:'Open Money / Business and execute the next revenue-producing action, not another planning task.'},
+ miami:{parent:'Travel / Miami',purpose:'Execute the planned South Florida trip with controlled cost, reliable logistics and deliberate networking.',output:'Booked travel, funded budget, completed events and followed-up contacts.',hub:['Airline booking site/app','Accommodation booking source','Calendar','Maps/navigation','Personal OS Miami budget and deadlines','Passport/travel documents'],access:['Departure airport, visa/entry rules, routes and transport depend on profile location and passport/citizenship','Only use confirmed booking details as final'],setup:['Confirm travel dates','Book flight','Book accommodation','Set ground transport plan','Set daily budget','Prepare event schedule','Prepare contact/follow-up system'],actions:['Check next deadline','Complete one booking/payment/preparation item','Update amount paid and amount remaining','Record confirmations','During trip: attend, capture contact and next step','Follow up after event'],markers:['Flight booked?','Accommodation booked?','Transport resolved?','Funds available?','Emergency reserve?','Event dates/times?','Contacts with follow-up?'],rules:['Trip costs are recorded when paid','Do not treat ticket purchase as the whole trip budget','Meaningful contacts receive a next step'],limits:['Do not use emergency reserve for optional spending','Do not book conflicting travel/event times'],metrics:['Amount saved','Amount remaining','Bookings completed','Contacts made','Follow-ups sent','Opportunities created'],done:'The next dated travel requirement is completed and the budget/confirmation record is updated.',review:'Weekly until travel; daily during trip; 48-hour follow-up after return.',next:'Open Miami and complete the nearest uncompleted deadline.'},
+ tetr:{parent:'Tetr / Education',purpose:'Evaluate and, if justified, execute the Tetr opportunity without destroying the professional fallback path.',output:'Evidence-based GO/NO-GO decision and completed application/funding/transition steps.',hub:['Tetr application portal','Email','Offer/acceptance documents','Scholarship/funding documents','Passport/visa files','Personal OS Tetr decision gate'],access:['Cohort, visa, funding and travel feasibility depend on applicant profile, citizenship/location and current program terms','Verify current dates and costs before acting'],setup:['Collect application status','Confirm cohort/start date','Confirm full cost','Confirm scholarship/aid','Confirm deadlines','Confirm visa/travel path','Confirm internship deferral/resumption path'],actions:['Open latest official communication','Update one unknown fact','Record evidence','Run GO gate','Complete the next required application/funding/document step','Do not make irreversible sacrifice before gate passes'],markers:['Written acceptance','Start date','Aid amount','Amount still payable','Payment deadline','Visa feasibility','Travel feasibility','Internship fallback'],rules:['Tetr replaces—not stacks on top of—the conflicting full-time path','No final sacrifice based only on excitement','Current official documents override assumptions'],limits:['Do not resign/forfeit professional pathway before key acceptance/funding facts are verified'],metrics:['Unknowns resolved','Documents completed','Funding secured','Deadlines met','GO-gate items passed'],done:'The next unresolved gate item is converted into verified evidence or a completed required action.',review:'Whenever new official information arrives; formal monthly gate review.',next:'Open Tetr and resolve the highest-impact unknown in the GO gate.'},
+ content:{parent:'Content',purpose:'Document real progress and turn lived work into public proof without creating a separate full-time project.',output:'Consistent short-form posts tied to actual work and identity.',hub:['iPhone Camera','Photos','Instagram','TikTok','YouTube Shorts','Personal OS Content notes'],access:['Platform availability/account status depends on user location/account; publishing workflow should use the platforms actually available'],setup:['Choose one real lesson from today','Write one sentence hook','Write three supporting bullets','Choose simple recording location/light','Set 20-minute cap'],actions:['Record 30–90 seconds','Trim dead beginning/end','Add simple title/caption','Post same core idea to selected platforms','Record link/result','Stop'],markers:['Is it based on real work?','One clear idea?','Understandable without extra context?','Posted within time cap?','Any useful response/signal?'],rules:['Document; do not invent a separate content life','One core video can be reused across platforms','Clarity beats editing complexity'],limits:['No hours of editing for a short','No posting private patient/client information'],metrics:['Posts published','Views','Saves/shares','Useful replies','Inbound opportunities','Consistency'],done:'One real-work insight is recorded, posted to the selected channels and logged.',review:'Twice weekly posting review; monthly content/opportunity review.',next:'Open Content and turn today’s strongest real lesson into one short.'}
+};
 
 function clone(x){ return JSON.parse(JSON.stringify(x)); }
 function loadState(){
@@ -519,6 +534,46 @@ function changeHTML(){
 }
 
 
+
+function profileLocationLabel(){
+ const p=state.profile||{};
+ const parts=[p.address,p.city,p.region,p.country].filter(Boolean);
+ return parts.length?parts.join(', '):'Location not set';
+}
+function blueprintList(title,items){
+ if(!items||!items.length)return '';
+ return `<details class="blueprintSection"><summary>${esc(title)}</summary><div class="blueprintBody">${list(items)}</div></details>`;
+}
+function moduleBlueprintHTML(id){
+ const b=executionBlueprints[id];
+ if(!b)return '';
+ const p=state.profile||{};
+ return `<section class="card blueprintCard">
+   <div class="blueprintHeader">
+    <div><div class="kicker">Universal execution blueprint</div><h2>${esc(b.parent)}</h2><p class="muted">${esc(b.purpose)}</p></div>
+    <div class="blueprintNext"><span>Next smallest step</span><b>${esc(b.next)}</b></div>
+   </div>
+   <div class="branch-overview cardless">
+    <div class="metricTile"><span>Output</span><b>${esc(b.output)}</b></div>
+    <div class="metricTile"><span>Location</span><b>${esc(profileLocationLabel())}</b></div>
+    <div class="metricTile"><span>Travel radius</span><b>${esc(p.travelRadiusKm?`${p.travelRadiusKm} km`:'Not set')}</b></div>
+    <div class="metricTile"><span>Review</span><b>${esc(b.review)}</b></div>
+   </div>
+   <div class="blueprintGrid">
+    ${blueprintList('Exact hub / tools / accounts',b.hub)}
+    ${blueprintList('Location / access',b.access)}
+    ${blueprintList('Setup — exact order',b.setup)}
+    ${blueprintList('Action loop',b.actions)}
+    ${blueprintList('Markers — what to inspect',b.markers)}
+    ${blueprintList('Decision rules',b.rules)}
+    ${blueprintList('Risk / limits',b.limits)}
+    ${blueprintList('Metrics',b.metrics)}
+    <details class="blueprintSection"><summary>Completion test</summary><div class="blueprintBody"><p>${esc(b.done)}</p></div></details>
+   </div>
+ </section>`;
+}
+function setText(id,value){const el=document.getElementById(id);if(el)el.value=Array.isArray(value)?value.join('\n'):(value||'');}
+
 function linesFromText(v=''){ return String(v||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); }
 function branchById(id){ return (state.customBranches||[]).find(b=>String(b.id)===String(id)); }
 function branchNavItems(){
@@ -531,6 +586,7 @@ function branchExecutionStandardHTML(){
   'PURPOSE — why this branch exists in one sentence.',
   'OUTPUT — the measurable thing this branch must eventually produce.',
   'TOOLS / ACCOUNTS — exact app, website, account, equipment or document used.',
+  'LOCATION / ACCESS — where it can be done, eligibility, travel radius, licensing or access constraints.',
   'SETUP — account creation / installation / preparation steps in exact order.',
   'ACTION LOOP — what you physically do when you open this branch.',
   'MARKERS — what information you look at before deciding what to do.',
@@ -539,6 +595,7 @@ function branchExecutionStandardHTML(){
   'METRICS — numbers proving whether you are improving.',
   'COMPLETION TEST — what counts as done for today.',
   'REVIEW — when the branch is evaluated or changed.',
+  'OPPORTUNITY PATH — where opportunities are found, what qualifies you, and the next access step.',
   'DEPENDENCIES — what other branches are actually affected if this one changes.',
   'NOTES / SOURCES — evidence, lessons and reference links.'
  ]));
@@ -566,10 +623,12 @@ function branchesHTML(){
       <label>Purpose<textarea id="branchPurpose" rows="2" required placeholder="Why does this branch exist?"></textarea></label>
       <label>Measurable output / end result<textarea id="branchOutput" rows="2" required placeholder="What must this branch produce?"></textarea></label>
       <label>Status<select id="branchStatus"><option value="active">Active</option><option value="waiting">Waiting</option></select></label>
+      <div class="actions"><button type="button" id="branchGenerateBtn" class="btn">Build full branch with AI</button><span id="branchGenerateStatus" class="small"></span></div>
     </div>
     <div class="formSection">
       <div class="formSectionTitle">2) Tools and setup</div>
       <label>Exact tools / accounts<textarea id="branchTools" rows="3" placeholder="One per line: app, website, account, equipment, document..."></textarea></label>
+      <label>Location / access requirements<textarea id="branchAccess" rows="4" placeholder="Where can this be done? What country/city eligibility, travel, licensing or access constraints matter?"></textarea></label>
       <label>Setup steps — one exact step per line<textarea id="branchSetup" rows="6" placeholder="Step 1...&#10;Step 2..."></textarea></label>
     </div>
     <div class="formSection">
@@ -584,6 +643,7 @@ function branchesHTML(){
       <label>Metrics<textarea id="branchMetrics" rows="4"></textarea></label>
       <label>Completion test<textarea id="branchDone" rows="3" placeholder="Today is complete when..."></textarea></label>
       <label>Review frequency<input id="branchReview" placeholder="Example: Sunday 6 PM / every 10 trades"></label>
+      <label>Opportunity path<textarea id="branchOpportunity" rows="4" placeholder="Where opportunities are found, what eligibility is required, and the next access step."></textarea></label>
       <label>Dependencies<textarea id="branchDeps" rows="3" placeholder="Which modules genuinely change if this branch changes?"></textarea></label>
     </div>
     <button class="btn primary">Create branch</button>
@@ -604,6 +664,7 @@ function customBranchHTML(id){
   <div class="grid7030">
    <div class="stack">
     ${make('Tools / accounts',b.tools)}
+    ${make('Location / access',b.access)}
     ${make('Setup steps',b.setup)}
     ${make('Action loop',b.actions)}
     ${make('Markers',b.markers)}
@@ -611,6 +672,7 @@ function customBranchHTML(id){
     ${make('Risk / limits',b.limits)}
     ${make('Metrics',b.metrics)}
     ${card('Completion test',`<p class="muted">${esc(b.done||'Not defined yet.')}</p>`)}
+    ${make('Opportunity path',b.opportunity)}
     ${make('Dependencies',b.dependencies)}
    </div>
    <div class="stack">
@@ -652,11 +714,13 @@ function currentContext(){
    today_override: (state.todayOverrides||{})[state.selectedDate]||null,
    current_module: state.currentModule,
    current_module_note: state.notes[state.currentModule]||'',
+   profile_location: state.profile||{},
+   active_execution_blueprint: executionBlueprints[state.currentModule]||null,
    metrics: state.metrics,
    approved_patches: state.patches.slice(-20),
    custom_branches: (state.customBranches||[]).map(b=>({id:b.id,name:b.name,parent:b.parent,status:b.status,purpose:b.purpose,output:b.output})),
    current_custom_branch: state.currentModule.startsWith('branch:') ? branchById(state.currentModule.split(':')[1]) : null,
-   branch_execution_rule: 'Never give a vague branch task. Specify exact tool/account, exact sequence, markers, decision rules, risk limits, metrics and completion test.',
+   branch_execution_rule: 'Never give a vague branch task. Specify exact tool/account, location/access, exact sequence, markers, decision rules, risk limits, metrics, opportunity path and completion test. Tailor to profile_location. If current availability, law, price or eligibility may have changed and is not verified, explicitly mark it VERIFY CURRENT AVAILABILITY rather than inventing certainty.',
    parked_ideas: state.ideas.slice(-10)
  };
 }
@@ -689,7 +753,20 @@ function aiHTML(){
 }
 
 function settingsHTML(){
+ const p=state.profile||{};
  return `<div class="grid2">
+ ${card('Profile & location',`<form id="profileForm" class="form">
+  <p class="muted">This is the location/access layer used to tailor branches, tools and future opportunities. Exact street address is optional.</p>
+  <label>Country<input id="profileCountry" value="${esc(p.country||'')}" placeholder="Example: Guyana"></label>
+  <label>Region / state / parish<input id="profileRegion" value="${esc(p.region||'')}" placeholder="Example: Demerara-Mahaica"></label>
+  <label>City / town<input id="profileCity" value="${esc(p.city||'')}" placeholder="Example: Georgetown"></label>
+  <label>Address or neighborhood — optional<input id="profileAddress" value="${esc(p.address||'')}" placeholder="Use only as much detail as needed for travel/access"></label>
+  <label>Preferred currency<input id="profileCurrency" value="${esc(p.currency||'')}" placeholder="Example: GYD / USD"></label>
+  <label>Usual transport mode<input id="profileTransport" value="${esc(p.transportMode||'')}" placeholder="Example: car, minibus, walking"></label>
+  <label>Practical travel radius (km)<input id="profileRadius" type="number" min="0" step="1" value="${esc(p.travelRadiusKm||'')}"></label>
+  <div class="actions"><button class="btn primary">Save profile</button><button type="button" id="useLocationBtn" class="btn">Use phone coordinates</button></div>
+  <div id="locationStatus" class="small" style="margin-top:8px">${p.coordinates?`Coordinates saved: ${Number(p.coordinates.lat).toFixed(4)}, ${Number(p.coordinates.lng).toFixed(4)}`:'No coordinates saved.'}</div>
+ </form>`)}
  ${card('AI connection',`<form id="settingsForm" class="form">
   <label>Secure AI backend URL<input id="aiEndpoint" type="url" value="${esc(state.settings.aiEndpoint||'')}" placeholder="https://your-project.vercel.app/api/chat"></label>
   <label>Private app token<input id="aiToken" type="password" value="${esc(state.settings.aiToken||'')}" placeholder="Paste the private token you create in Vercel"></label>
@@ -721,7 +798,8 @@ function render(){
  if(state.currentModule.startsWith('branch:')){
    document.getElementById('content').innerHTML=customBranchHTML(state.currentModule.split(':')[1]);
  }else{
-   document.getElementById('content').innerHTML=map[state.currentModule]();
+   const base=map[state.currentModule]();
+   document.getElementById('content').innerHTML=(executionBlueprints[state.currentModule]?moduleBlueprintHTML(state.currentModule):'')+base;
  }
  const hud=`<div class="moduleHud"><div class="moduleHudPill"><span>Current module</span><b>${esc(currentModuleName)}</b></div><div class="moduleHudPill"><span>Date</span><b>${esc(state.selectedDate)}</b></div><div class="moduleHudPill"><span>Daily completion</span><b>${doneToday}/7</b></div></div>`;
  document.getElementById('content').innerHTML=hud+document.getElementById('content').innerHTML;
@@ -754,6 +832,7 @@ function wire(){
      purpose:document.getElementById('branchPurpose').value.trim(),
      output:document.getElementById('branchOutput').value.trim(),
      tools:linesFromText(document.getElementById('branchTools').value),
+     access:linesFromText(document.getElementById('branchAccess').value),
      setup:linesFromText(document.getElementById('branchSetup').value),
      actions:linesFromText(document.getElementById('branchActions').value),
      markers:linesFromText(document.getElementById('branchMarkers').value),
@@ -762,6 +841,7 @@ function wire(){
      metrics:linesFromText(document.getElementById('branchMetrics').value),
      done:document.getElementById('branchDone').value.trim(),
      review:document.getElementById('branchReview').value.trim(),
+     opportunity:linesFromText(document.getElementById('branchOpportunity').value),
      dependencies:linesFromText(document.getElementById('branchDeps').value),
      status:document.getElementById('branchStatus').value,
      createdAt:new Date().toISOString()
@@ -779,6 +859,56 @@ function wire(){
      saveState();render();
    }
  }));
+
+
+ const pf=document.getElementById('profileForm');
+ if(pf) pf.addEventListener('submit',e=>{
+   e.preventDefault();
+   state.profile={...(state.profile||{}),
+     country:document.getElementById('profileCountry').value.trim(),
+     region:document.getElementById('profileRegion').value.trim(),
+     city:document.getElementById('profileCity').value.trim(),
+     address:document.getElementById('profileAddress').value.trim(),
+     currency:document.getElementById('profileCurrency').value.trim(),
+     transportMode:document.getElementById('profileTransport').value.trim(),
+     travelRadiusKm:document.getElementById('profileRadius').value.trim()
+   };
+   saveState();render();
+ });
+ const ul=document.getElementById('useLocationBtn');
+ if(ul) ul.addEventListener('click',()=>{
+   const ls=document.getElementById('locationStatus');
+   if(!navigator.geolocation){if(ls)ls.textContent='Phone location is not available in this browser.';return;}
+   if(ls)ls.textContent='Requesting phone location…';
+   navigator.geolocation.getCurrentPosition(pos=>{
+     state.profile={...(state.profile||{}),coordinates:{lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy,updatedAt:new Date().toISOString()}};
+     saveState();render();
+   },err=>{if(ls)ls.textContent='Location was not saved: '+err.message;},{enableHighAccuracy:false,timeout:10000,maximumAge:300000});
+ });
+
+ const gen=document.getElementById('branchGenerateBtn');
+ if(gen) gen.addEventListener('click',async()=>{
+   const status=document.getElementById('branchGenerateStatus');
+   const name=document.getElementById('branchName').value.trim();
+   const parent=document.getElementById('branchParent').value.trim();
+   const purpose=document.getElementById('branchPurpose').value.trim();
+   const endpoint=state.settings.aiEndpoint, token=state.settings.aiToken||'';
+   if(!name||!parent||!purpose){if(status)status.textContent='Enter branch name, parent and purpose first.';return;}
+   if(!endpoint||!token){if(status)status.textContent='Connect AI in Settings first.';return;}
+   gen.disabled=true;if(status)status.textContent='Building the full execution branch…';
+   const location=JSON.stringify(state.profile||{});
+   const prompt=`Build a complete Personal OS execution branch. Return ONLY <OS_BRANCH>{valid JSON}</OS_BRANCH>. Branch name: ${name}. Parent: ${parent}. Purpose: ${purpose}. User location/access profile: ${location}. JSON fields: purpose, output, tools (array), access (array), setup (array), actions (array), markers (array), rules (array), limits (array), metrics (array), done (string), review (string), opportunity (array), dependencies (array). Instructions must be extremely concrete and executable: exact tool/account/platform where appropriate, smallest sequential steps, decision rules, measurements, completion criteria. Tailor access/opportunities to the location profile. When a platform, law, fee, availability, licensing condition or opportunity may have changed and is not verified, write VERIFY CURRENT AVAILABILITY instead of pretending certainty. No prose outside the tag.`;
+   try{
+     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-App-Token':token},body:JSON.stringify({message:prompt,context:currentContext(),history:[]})});
+     if(!res.ok)throw new Error('Server returned '+res.status);
+     const data=await res.json();
+     const parsed=extractMachineBlock(data.reply||'','OS_BRANCH').value;
+     if(!parsed)throw new Error('AI did not return a complete branch blueprint');
+     setText('branchPurpose',parsed.purpose||purpose);setText('branchOutput',parsed.output);setText('branchTools',parsed.tools);setText('branchAccess',parsed.access);setText('branchSetup',parsed.setup);setText('branchActions',parsed.actions);setText('branchMarkers',parsed.markers);setText('branchRules',parsed.rules);setText('branchLimits',parsed.limits);setText('branchMetrics',parsed.metrics);setText('branchDone',parsed.done);setText('branchReview',parsed.review);setText('branchOpportunity',parsed.opportunity);setText('branchDeps',parsed.dependencies);
+     if(status)status.textContent='Blueprint filled. Review it, edit anything needed, then Create branch.';
+   }catch(err){if(status)status.textContent='Could not build branch: '+err.message;}
+   finally{gen.disabled=false;}
+ });
 
  const sf=document.getElementById('settingsForm');
  if(sf) sf.addEventListener('submit',e=>{e.preventDefault();state.settings.aiEndpoint=document.getElementById('aiEndpoint').value.trim();state.settings.aiToken=document.getElementById('aiToken').value.trim();saveState();render();});
