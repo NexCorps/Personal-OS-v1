@@ -1,13 +1,21 @@
 {
-  "name": "Personal OS",
+  "name": "Personal OS \u2014 Dynamic Modules",
   "short_name": "Personal OS",
-  "start_url": "./index.html?v=6.5",
+  "start_url": "./index.html?v=7.0",
   "display": "standalone",
   "background_color": "#0b1020",
   "theme_color": "#111318",
-  "description": "A modular personal operating system for branches, daily execution, AI coaching, and structured self-management.",
+  "description": "A branch-specific, option-driven personal operating system with dynamic daily regimens and AI support.",
   "icons": [
-    {"src":"./icon-192.png","sizes":"192x192","type":"image/png"},
-    {"src":"./icon-512.png","sizes":"512x512","type":"image/png"}
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }

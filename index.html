@@ -8,9 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Personal OS">
   <title>Personal OS</title>
-  <link rel="manifest" href="manifest.json?v=6.5">
+  <link rel="manifest" href="manifest.json?v=7.0">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=6.5">
+  <link rel="stylesheet" href="styles.css?v=7.0">
 </head>
 <body>
   <main id="app" class="app">
@@ -27,7 +27,8 @@
       </div>
       <div class="panel">
         <label for="date">Operating date</label>
-        <input id="date" class="datebox" type="date" min="2026-08-30" max="2027-12-31">
+        <div class="dateNav"><button type="button" id="prevDate" class="btn" aria-label="Previous day">‹</button><input id="date" class="datebox" type="date"><button type="button" id="nextDate" class="btn" aria-label="Next day">›</button></div>
+        <div class="actions" style="margin-top:10px"><button type="button" id="todayDate" class="btn primary">Today</button><span id="dateSyncStatus" class="small">Synced to phone date</span></div>
         <div id="stageName" style="margin-top:12px;font-weight:800"></div>
         <p id="stagePurpose" class="muted" style="font-size:13px;margin-bottom:0"></p>
       </div>
@@ -58,6 +59,6 @@
       </div>
     </section>
   </main>
-  <script src="app.js?v=6.5"></script>
+  <script src="app.js?v=7.0"></script>
 </body>
 </html>
